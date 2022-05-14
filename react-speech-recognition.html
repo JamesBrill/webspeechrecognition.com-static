@@ -1,0 +1,315 @@
+<!DOCTYPE html><html><head><meta charSet="utf-8"/><title>React Speech Recognition</title><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="icon" href="/favicon.ico"/><meta name="next-head-count" content="4"/><link rel="preload" href="/_next/static/css/75ab12f62058a1e5275f.css" as="style"/><link rel="stylesheet" href="/_next/static/css/75ab12f62058a1e5275f.css" data-n-g=""/><link rel="preload" href="/_next/static/css/804ad107cac14cc49c60.css" as="style"/><link rel="stylesheet" href="/_next/static/css/804ad107cac14cc49c60.css" data-n-p=""/><noscript data-n-css=""></noscript><script defer="" nomodule="" src="/_next/static/chunks/polyfills-a40ef1678bae11e696dba45124eadd70.js"></script><script src="/_next/static/chunks/webpack-fb76148cfcfb42ca18eb.js" defer=""></script><script src="/_next/static/chunks/framework-1a85486469afb3278dba.js" defer=""></script><script src="/_next/static/chunks/main-75772fcf59f94cd717f4.js" defer=""></script><script src="/_next/static/chunks/pages/_app-ba15d322a33623d51cf6.js" defer=""></script><script src="/_next/static/chunks/pages/react-speech-recognition-06280912ffac7b3f6ba3.js" defer=""></script><script src="/_next/static/s8hX2AK8N3co9J3qwh2ay/_buildManifest.js" defer=""></script><script src="/_next/static/s8hX2AK8N3co9J3qwh2ay/_ssgManifest.js" defer=""></script></head><body><div id="__next"><div class="Layout_Layout__2MSiz"><main><h1>React Speech Recognition</h1><div class="Article_Article__2h4f-"><a href="/">Back to home</a><div class="Article_Article__content__Vy2r-"><h1>What is it?</h1>
+<p><code>react-speech-recognition</code> is a React library that converts speech from the microphone to text and makes it available to your React app. It's intended to simplify voice-driven web app development and let developers focus on the handling of voice commands.</p>
+<p>You can find the source code on GitHub <a href="https://github.com/JamesBrill/react-speech-recognition">here</a>.</p>
+<p>If you're on a <a href="#supported-browsers">browser that supports the Web Speech API</a>, you can try a demo <a href="/react-speech-recognition-demo">here</a>.</p>
+<h2>How it works</h2>
+<p><code>useSpeechRecognition</code> is a React hook that gives a component access to a transcript of speech picked up from the user's microphone.</p>
+<p><code>SpeechRecognition</code> manages the global state of the Web Speech API, exposing functions to turn the microphone on and off.</p>
+<p>Under the hood, it uses <a href="https://developer.mozilla.org/en-US/docs/Web/API/SpeechRecognition">Web Speech API</a>. Note that browser support for this API is currently limited, with Chrome having the best experience - see <a href="#supported-browsers">supported browsers</a> for more information.</p>
+<p>This version requires React 16.8 so that React hooks can be used. If you're used to version 2.x of <code>react-speech-recognition</code> or want to use an older version of React, you can see the old README <a href="https://github.com/JamesBrill/react-speech-recognition/tree/v2.1.4">here</a>. If you want to migrate to version 3.x, see the migration guide <a href="https://github.com/JamesBrill/react-speech-recognition/blob/master/docs/V3-MIGRATION.md">here</a>.</p>
+<h2>Useful links</h2>
+<ul>
+<li><a href="#basic-example">Basic example</a></li>
+<li><a href="#why-you-should-use-a-polyfill-with-this-library">Why you should use a polyfill with this library</a></li>
+<li><a href="#cross-browser-example">Cross-browser example</a></li>
+<li><a href="#supported-browsers">Supported browsers</a></li>
+<li><a href="/polyfills">Polyfills</a></li>
+<li><a href="/react-speech-recognition-api-docs">API docs</a></li>
+<li><a href="#troubleshooting">Troubleshooting</a></li>
+<li><a href="https://github.com/JamesBrill/react-speech-recognition/blob/master/docs/V3-MIGRATION.md">Version 3 migration guide</a></li>
+<li><a href="https://github.com/OleksandrYehorov/DefinitelyTyped/blob/master/types/react-speech-recognition/index.d.ts">TypeScript declaration file in DefinitelyTyped</a></li>
+</ul>
+<h2>Installation</h2>
+<p>To install:</p>
+<p><code>npm install --save react-speech-recognition</code></p>
+<p>To import in your React code:</p>
+<p><code>import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition'</code></p>
+<p><a name="basic-example"></a></p>
+<h2>Basic example</h2>
+<p>The most basic example of a component using this hook would be:</p>
+<pre><code>import React from 'react';
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
+
+const Dictaphone = () => {
+  const {
+    transcript,
+    listening,
+    resetTranscript,
+    browserSupportsSpeechRecognition
+  } = useSpeechRecognition();
+
+  if (!browserSupportsSpeechRecognition) {
+    return &#x3C;span>Browser doesn't support speech recognition.&#x3C;/span>;
+  }
+
+  return (
+    &#x3C;div>
+      &#x3C;p>Microphone: {listening ? 'on' : 'off'}&#x3C;/p>
+      &#x3C;button onClick={SpeechRecognition.startListening}>Start&#x3C;/button>
+      &#x3C;button onClick={SpeechRecognition.stopListening}>Stop&#x3C;/button>
+      &#x3C;button onClick={resetTranscript}>Reset&#x3C;/button>
+      &#x3C;p>{transcript}&#x3C;/p>
+    &#x3C;/div>
+  );
+};
+export default Dictaphone;
+</code></pre>
+<p>You can see more examples in the example React app attached to this repo. See <a href="#developing">Developing</a>.</p>
+<p><a name="why-you-should-use-a-polyfill-with-this-library"></a></p>
+<h2>Why you should use a polyfill with this library</h2>
+<p>By default, speech recognition is not supported in all browsers, with the best native experience being available on desktop Chrome. To avoid the limitations of native browser speech recognition, it's recommended that you combine <code>react-speech-recognition</code> with a <a href="/polyfills">speech recognition polyfill</a>. Why? Here's a comparison with and without polyfills:</p>
+<ul>
+<li>✅ With a polyfill, your web app will be voice-enabled on all modern browsers (except Internet Explorer)</li>
+<li>❌ Without a polyfill, your web app will only be voice-enabled on the browsers listed <a href="#supported-browsers">here</a></li>
+<li>✅ With a polyfill, your web app will have a consistent voice experience across browsers</li>
+<li>❌ Without a polyfill, different native implementations will produce different transcriptions, have different levels of accuracy, and have different formatting styles</li>
+<li>✅ With a polyfill, you control who is processing your users' voice data</li>
+<li>❌ Without a polyfill, your users' voice data will be sent to big tech companies like Google or Apple to be transcribed</li>
+<li>✅ With a polyfill, <code>react-speech-recognition</code> will be suitable for use in commercial applications</li>
+<li>❌ Without a polyfill, <code>react-speech-recognition</code> will still be fine for personal projects or use cases where cross-browser support is not needed</li>
+</ul>
+<p><code>react-speech-recognition</code> currently supports polyfills for the following cloud providers:</p>
+<div>
+  <a href="https://www.speechly.com/?utm_source=webspeechrecognition.com">
+    <img src="images/speechly.png" width="200" alt="Speechly">
+  </a>
+  <img width="50"></img>
+  <a href="https://azure.microsoft.com/en-gb/services/cognitive-services/speech-to-text/">
+    <img src="images/microsoft.png" width="175" alt="Microsoft Azure Cognitive Services">
+  </a>
+</div>
+<p><a name="cross-browser-example"></a></p>
+<h2>Cross-browser example</h2>
+<p>You can find the full guide for setting up a polyfill <a href="/polyfills">here</a>. Alternatively, here is a quick (and free) example using Speechly:</p>
+<ul>
+<li>Install <code>@speechly/speech-recognition-polyfill</code> in your web app</li>
+<li>You will need a Speechly app ID. To get one of these, sign up for free with Speechly and follow <a href="https://docs.speechly.com/quick-start/stt-only/">the guide here</a></li>
+<li>Here's a component for a push-to-talk button. The basic example above would also work fine.</li>
+</ul>
+<pre><code>import React from 'react';
+import { createSpeechlySpeechRecognition } from '@speechly/speech-recognition-polyfill';
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
+
+const appId = '&#x3C;INSERT_SPEECHLY_APP_ID_HERE>';
+const SpeechlySpeechRecognition = createSpeechlySpeechRecognition(appId);
+SpeechRecognition.applyPolyfill(SpeechlySpeechRecognition);
+
+const Dictaphone = () => {
+  const {
+    transcript,
+    listening,
+    browserSupportsSpeechRecognition
+  } = useSpeechRecognition();
+  const startListening = () => SpeechRecognition.startListening({ continuous: true });
+
+  if (!browserSupportsSpeechRecognition) {
+    return &#x3C;span>Browser doesn't support speech recognition.&#x3C;/span>;
+  }
+
+  return (
+    &#x3C;div>
+      &#x3C;p>Microphone: {listening ? 'on' : 'off'}&#x3C;/p>
+      &#x3C;button
+        onTouchStart={startListening}
+        onMouseDown={startListening}
+        onTouchEnd={SpeechRecognition.stopListening}
+        onMouseUp={SpeechRecognition.stopListening}
+      >Hold to talk&#x3C;/button>
+      &#x3C;p>{transcript}&#x3C;/p>
+    &#x3C;/div>
+  );
+};
+export default Dictaphone;
+</code></pre>
+<h2>Detecting browser support for Web Speech API</h2>
+<p>If you choose not to use a polyfill, this library still fails gracefully on browsers that don't support speech recognition. It is recommended that you render some fallback content if it is not supported by the user's browser:</p>
+<pre><code>if (!browserSupportsSpeechRecognition) {
+  // Render some fallback content
+}
+</code></pre>
+<p><a name="supported-browsers"></a></p>
+<h3>Supported browsers</h3>
+<p>Without a polyfill, the Web Speech API is largely only supported by Google browsers. As of May 2021, the following browsers support the Web Speech API:</p>
+<ul>
+<li>Chrome (desktop): this is by far the smoothest experience</li>
+<li>Safari 14.1</li>
+<li>Microsoft Edge</li>
+<li>Chrome (Android): a word of warning about this platform, which is that there can be an annoying beeping sound when turning the microphone on. This is part of the Android OS and cannot be controlled from the browser</li>
+<li>Android webview</li>
+<li>Samsung Internet</li>
+</ul>
+<p>For all other browsers, you can render fallback content using the <code>SpeechRecognition.browserSupportsSpeechRecognition</code> function described above. Alternatively, as mentioned before, you can integrate a <a href="/polyfills">polyfill</a>.</p>
+<h2>Detecting when the user denies access to the microphone</h2>
+<p>Even if the browser supports the Web Speech API, the user still has to give permission for their microphone to be used before transcription can begin. They are asked for permission when <code>react-speech-recognition</code> first tries to start listening. At this point, you can detect when the user denies access via the <code>isMicrophoneAvailable</code> state. When this becomes <code>false</code>, it's advised that you disable voice-driven features and indicate that microphone access is needed for them to work.</p>
+<pre><code>if (!isMicrophoneAvailable) {
+  // Render some fallback content
+}
+</code></pre>
+<h2>Controlling the microphone</h2>
+<p>Before consuming the transcript, you should be familiar with <code>SpeechRecognition</code>, which gives you control over the microphone. The state of the microphone is global, so any functions you call on this object will affect <em>all</em> components using <code>useSpeechRecognition</code>.</p>
+<h3>Turning the microphone on</h3>
+<p>To start listening to speech, call the <code>startListening</code> function.</p>
+<pre><code>SpeechRecognition.startListening()
+</code></pre>
+<p>This is an asynchronous function, so it will need to be awaited if you want to do something after the microphone has been turned on.</p>
+<h3>Turning the microphone off</h3>
+<p>To turn the microphone off, but still finish processing any speech in progress, call <code>stopListening</code>.</p>
+<pre><code>SpeechRecognition.stopListening()
+</code></pre>
+<p>To turn the microphone off, and cancel the processing of any speech in progress, call <code>abortListening</code>.</p>
+<pre><code>SpeechRecognition.abortListening()
+</code></pre>
+<h2>Consuming the microphone transcript</h2>
+<p>To make the microphone transcript available in your component, simply add:</p>
+<pre><code>const { transcript } = useSpeechRecognition()
+</code></pre>
+<h2>Resetting the microphone transcript</h2>
+<p>To set the transcript to an empty string, you can call the <code>resetTranscript</code> function provided by <code>useSpeechRecognition</code>. Note that this is local to your component and does not affect any other components using Speech Recognition.</p>
+<pre><code>const { resetTranscript } = useSpeechRecognition()
+</code></pre>
+<p><a name="commands"></a></p>
+<h2>Commands</h2>
+<p>To respond when the user says a particular phrase, you can pass in a list of commands to the <code>useSpeechRecognition</code> hook. Each command is an object with the following properties:</p>
+<ul>
+<li><code>command</code>: This is a string or <code>RegExp</code> representing the phrase you want to listen for. If you want to use the same callback for multiple commands, you can also pass in an array here, with each value being a string or <code>RegExp</code></li>
+<li><code>callback</code>: The function that is executed when the command is spoken. The last argument that this function receives will always be an object containing the following properties:
+<ul>
+<li><code>command</code>: The command phrase that was matched. This can be useful when you provide an array of command phrases for the same callback and need to know which one triggered it</li>
+<li><code>resetTranscript</code>: A function that sets the transcript to an empty string</li>
+</ul>
+</li>
+<li><code>matchInterim</code>: Boolean that determines whether "interim" results should be matched against the command. This will make your component respond faster to commands, but also makes false positives more likely - i.e. the command may be detected when it is not spoken. This is <code>false</code> by default and should only be set for simple commands.</li>
+<li><code>isFuzzyMatch</code>: Boolean that determines whether the comparison between speech and <code>command</code> is based on similarity rather than an exact match. Fuzzy matching is useful for commands that are easy to mispronounce or be misinterpreted by the Speech Recognition engine (e.g. names of places, sports teams, restaurant menu items). It is intended for commands that are string literals without special characters. If <code>command</code> is a string with special characters or a <code>RegExp</code>, it will be converted to a string without special characters when fuzzy matching. The similarity that is needed to match the command can be configured with <code>fuzzyMatchingThreshold</code>. <code>isFuzzyMatch</code> is <code>false</code> by default. When it is set to <code>true</code>, it will pass four arguments to <code>callback</code>:
+<ul>
+<li>The value of <code>command</code> (with any special characters removed)</li>
+<li>The speech that matched <code>command</code></li>
+<li>The similarity between <code>command</code> and the speech</li>
+<li>The object mentioned in the <code>callback</code> description above</li>
+</ul>
+</li>
+<li><code>fuzzyMatchingThreshold</code>: If the similarity of speech to <code>command</code> is higher than this value when <code>isFuzzyMatch</code> is turned on, the <code>callback</code> will be invoked. You should set this only if <code>isFuzzyMatch</code> is <code>true</code>. It takes values between <code>0</code> (will match anything) and <code>1</code> (needs an exact match). The default value is <code>0.8</code>.</li>
+<li><code>bestMatchOnly</code>: Boolean that, when <code>isFuzzyMatch</code> is <code>true</code>, determines whether the callback should only be triggered by the command phrase that <em>best</em> matches the speech, rather than being triggered by all matching fuzzy command phrases. This is useful for fuzzy commands with multiple command phrases assigned to the same callback function - you may only want the callback to be triggered once for each spoken command. You should set this only if <code>isFuzzyMatch</code> is <code>true</code>. The default value is <code>false</code>.</li>
+</ul>
+<h3>Command symbols</h3>
+<p>To make commands easier to write, the following symbols are supported:</p>
+<ul>
+<li>Splats: this is just a <code>*</code> and will match multi-word text:
+<ul>
+<li>Example: <code>'I would like to order *'</code></li>
+<li>The words that match the splat will be passed into the callback, one argument per splat</li>
+</ul>
+</li>
+<li>Named variables: this is written <code>:&#x3C;name></code> and will match a single word:
+<ul>
+<li>Example: <code>'I am :height metres tall'</code></li>
+<li>The one word that matches the named variable will be passed into the callback</li>
+</ul>
+</li>
+<li>Optional words: this is a phrase wrapped in parentheses <code>(</code> and <code>)</code>, and is not required to match the command:
+<ul>
+<li>Example: <code>'Pass the salt (please)'</code></li>
+<li>The above example would match both <code>'Pass the salt'</code> and <code>'Pass the salt please'</code></li>
+</ul>
+</li>
+</ul>
+<h3>Example with commands</h3>
+<pre><code>import React, { useState } from 'react'
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition'
+
+const Dictaphone = () => {
+  const [message, setMessage] = useState('')
+  const commands = [
+    {
+      command: 'I would like to order *',
+      callback: (food) => setMessage(`Your order is for: ${food}`)
+    },
+    {
+      command: 'The weather is :condition today',
+      callback: (condition) => setMessage(`Today, the weather is ${condition}`)
+    },
+    {
+      command: 'My top sports are * and *',
+      callback: (sport1, sport2) => setMessage(`#1: ${sport1}, #2: ${sport2}`)
+    },
+    {
+      command: 'Pass the salt (please)',
+      callback: () => setMessage('My pleasure')
+    },
+    {
+      command: ['Hello', 'Hi'],
+      callback: ({ command }) => setMessage(`Hi there! You said: "${command}"`),
+      matchInterim: true
+    },
+    {
+      command: 'Beijing',
+      callback: (command, spokenPhrase, similarityRatio) => setMessage(`${command} and ${spokenPhrase} are ${similarityRatio * 100}% similar`),
+      // If the spokenPhrase is "Benji", the message would be "Beijing and Benji are 40% similar"
+      isFuzzyMatch: true,
+      fuzzyMatchingThreshold: 0.2
+    },
+    {
+      command: ['eat', 'sleep', 'leave'],
+      callback: (command) => setMessage(`Best matching command: ${command}`),
+      isFuzzyMatch: true,
+      fuzzyMatchingThreshold: 0.2,
+      bestMatchOnly: true
+    },
+    {
+      command: 'clear',
+      callback: ({ resetTranscript }) => resetTranscript()
+    }
+  ]
+
+  const { transcript, browserSupportsSpeechRecognition } = useSpeechRecognition({ commands })
+
+  if (!browserSupportsSpeechRecognition) {
+    return null
+  }
+
+  return (
+    &#x3C;div>
+      &#x3C;p>{message}&#x3C;/p>
+      &#x3C;p>{transcript}&#x3C;/p>
+    &#x3C;/div>
+  )
+}
+export default Dictaphone
+</code></pre>
+<h2>Continuous listening</h2>
+<p>By default, the microphone will stop listening when the user stops speaking. This reflects the approach taken by "press to talk" buttons on modern devices.</p>
+<p>If you want to listen continuously, set the <code>continuous</code> property to <code>true</code> when calling <code>startListening</code>. The microphone will continue to listen, even after the user has stopped speaking.</p>
+<pre><code>SpeechRecognition.startListening({ continuous: true })
+</code></pre>
+<p>Be warned that not all browsers have good support for continuous listening. Chrome on Android in particular constantly restarts the microphone, leading to a frustrating and noisy (from the beeping) experience. To avoid enabling continuous listening on these browsers, you can make use of the <code>browserSupportsContinuousListening</code> state from <code>useSpeechRecognition</code> to detect support for this feature.</p>
+<pre><code>if (browserSupportsContinuousListening) {
+  SpeechRecognition.startListening({ continuous: true })
+} else {
+  // Fallback behaviour
+}
+</code></pre>
+<p>Alternatively, you can try one of the <a href="/polyfills">polyfills</a> to enable continuous listening on these browsers.</p>
+<h2>Changing language</h2>
+<p>To listen for a specific language, you can pass a language tag (e.g. <code>'zh-CN'</code> for Chinese) when calling <code>startListening</code>. See <a href="/react-speech-recognition-api-docs#language">here</a> for a list of supported languages.</p>
+<pre><code>SpeechRecognition.startListening({ language: 'zh-CN' })
+</code></pre>
+<p><a name="troubleshooting"></a></p>
+<h2>Troubleshooting</h2>
+<h3><code>regeneratorRuntime is not defined</code></h3>
+<p>If you see the error <code>regeneratorRuntime is not defined</code> when using this library, you will need to ensure your web app installs <code>regenerator-runtime</code>:</p>
+<ul>
+<li><code>npm i --save regenerator-runtime</code></li>
+<li>If you are using NextJS, put this at the top of your <code>_app.js</code> file: <code>import 'regenerator-runtime/runtime'</code>. For any other framework, put it at the top of your <code>index.js</code> file</li>
+</ul>
+<h3>How to use <code>react-speech-recognition</code> offline?</h3>
+<p>Unfortunately, speech recognition will not function in Chrome when offline. According to the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API/Using_the_Web_Speech_API">Web Speech API docs</a>: <code>On Chrome, using Speech Recognition on a web page involves a server-based recognition engine. Your audio is sent to a web service for recognition processing, so it won't work offline.</code></p>
+<p>If you are building an offline web app, you can detect when the browser is offline by inspecting the value of <code>navigator.onLine</code>. If it is <code>true</code>, you can render the transcript generated by React Speech Recognition. If it is <code>false</code>, it's advisable to render offline fallback content that signifies that speech recognition is disabled. The online/offline API is simple to use - you can read how to use it <a href="https://developer.mozilla.org/en-US/docs/Web/API/NavigatorOnLine/Online_and_offline_events">here</a>.</p>
+<p><a name="developing"></a></p>
+<h2>Developing</h2>
+<p>You can run an example React app that uses <code>react-speech-recognition</code> with:</p>
+<pre><code>npm i
+npm run dev
+</code></pre>
+<p>On <code>http://localhost:3000</code>, you'll be able to speak into the microphone and see your speech as text on the web page. There are also controls for turning speech recognition on and off. You can make changes to the web app itself in the <code>example</code> directory. Any changes you make to the web app or <code>react-speech-recognition</code> itself will be live reloaded in the browser.</p>
+<h2>API docs</h2>
+<p>View the API docs <a href="/react-speech-recognition-api-docs">here</a> or follow the guide above to learn how to use <code>react-speech-recognition</code>.</p>
+</div></div></main></div></div><script id="__NEXT_DATA__" type="application/json">{"props":{"pageProps":{"title":"React Speech Recognition","contentHtml":"\u003ch1\u003eWhat is it?\u003c/h1\u003e\n\u003cp\u003e\u003ccode\u003ereact-speech-recognition\u003c/code\u003e is a React library that converts speech from the microphone to text and makes it available to your React app. It's intended to simplify voice-driven web app development and let developers focus on the handling of voice commands.\u003c/p\u003e\n\u003cp\u003eYou can find the source code on GitHub \u003ca href=\"https://github.com/JamesBrill/react-speech-recognition\"\u003ehere\u003c/a\u003e.\u003c/p\u003e\n\u003cp\u003eIf you're on a \u003ca href=\"#supported-browsers\"\u003ebrowser that supports the Web Speech API\u003c/a\u003e, you can try a demo \u003ca href=\"/react-speech-recognition-demo\"\u003ehere\u003c/a\u003e.\u003c/p\u003e\n\u003ch2\u003eHow it works\u003c/h2\u003e\n\u003cp\u003e\u003ccode\u003euseSpeechRecognition\u003c/code\u003e is a React hook that gives a component access to a transcript of speech picked up from the user's microphone.\u003c/p\u003e\n\u003cp\u003e\u003ccode\u003eSpeechRecognition\u003c/code\u003e manages the global state of the Web Speech API, exposing functions to turn the microphone on and off.\u003c/p\u003e\n\u003cp\u003eUnder the hood, it uses \u003ca href=\"https://developer.mozilla.org/en-US/docs/Web/API/SpeechRecognition\"\u003eWeb Speech API\u003c/a\u003e. Note that browser support for this API is currently limited, with Chrome having the best experience - see \u003ca href=\"#supported-browsers\"\u003esupported browsers\u003c/a\u003e for more information.\u003c/p\u003e\n\u003cp\u003eThis version requires React 16.8 so that React hooks can be used. If you're used to version 2.x of \u003ccode\u003ereact-speech-recognition\u003c/code\u003e or want to use an older version of React, you can see the old README \u003ca href=\"https://github.com/JamesBrill/react-speech-recognition/tree/v2.1.4\"\u003ehere\u003c/a\u003e. If you want to migrate to version 3.x, see the migration guide \u003ca href=\"https://github.com/JamesBrill/react-speech-recognition/blob/master/docs/V3-MIGRATION.md\"\u003ehere\u003c/a\u003e.\u003c/p\u003e\n\u003ch2\u003eUseful links\u003c/h2\u003e\n\u003cul\u003e\n\u003cli\u003e\u003ca href=\"#basic-example\"\u003eBasic example\u003c/a\u003e\u003c/li\u003e\n\u003cli\u003e\u003ca href=\"#why-you-should-use-a-polyfill-with-this-library\"\u003eWhy you should use a polyfill with this library\u003c/a\u003e\u003c/li\u003e\n\u003cli\u003e\u003ca href=\"#cross-browser-example\"\u003eCross-browser example\u003c/a\u003e\u003c/li\u003e\n\u003cli\u003e\u003ca href=\"#supported-browsers\"\u003eSupported browsers\u003c/a\u003e\u003c/li\u003e\n\u003cli\u003e\u003ca href=\"/polyfills\"\u003ePolyfills\u003c/a\u003e\u003c/li\u003e\n\u003cli\u003e\u003ca href=\"/react-speech-recognition-api-docs\"\u003eAPI docs\u003c/a\u003e\u003c/li\u003e\n\u003cli\u003e\u003ca href=\"#troubleshooting\"\u003eTroubleshooting\u003c/a\u003e\u003c/li\u003e\n\u003cli\u003e\u003ca href=\"https://github.com/JamesBrill/react-speech-recognition/blob/master/docs/V3-MIGRATION.md\"\u003eVersion 3 migration guide\u003c/a\u003e\u003c/li\u003e\n\u003cli\u003e\u003ca href=\"https://github.com/OleksandrYehorov/DefinitelyTyped/blob/master/types/react-speech-recognition/index.d.ts\"\u003eTypeScript declaration file in DefinitelyTyped\u003c/a\u003e\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch2\u003eInstallation\u003c/h2\u003e\n\u003cp\u003eTo install:\u003c/p\u003e\n\u003cp\u003e\u003ccode\u003enpm install --save react-speech-recognition\u003c/code\u003e\u003c/p\u003e\n\u003cp\u003eTo import in your React code:\u003c/p\u003e\n\u003cp\u003e\u003ccode\u003eimport SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition'\u003c/code\u003e\u003c/p\u003e\n\u003cp\u003e\u003ca name=\"basic-example\"\u003e\u003c/a\u003e\u003c/p\u003e\n\u003ch2\u003eBasic example\u003c/h2\u003e\n\u003cp\u003eThe most basic example of a component using this hook would be:\u003c/p\u003e\n\u003cpre\u003e\u003ccode\u003eimport React from 'react';\nimport SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';\n\nconst Dictaphone = () =\u003e {\n  const {\n    transcript,\n    listening,\n    resetTranscript,\n    browserSupportsSpeechRecognition\n  } = useSpeechRecognition();\n\n  if (!browserSupportsSpeechRecognition) {\n    return \u0026#x3C;span\u003eBrowser doesn't support speech recognition.\u0026#x3C;/span\u003e;\n  }\n\n  return (\n    \u0026#x3C;div\u003e\n      \u0026#x3C;p\u003eMicrophone: {listening ? 'on' : 'off'}\u0026#x3C;/p\u003e\n      \u0026#x3C;button onClick={SpeechRecognition.startListening}\u003eStart\u0026#x3C;/button\u003e\n      \u0026#x3C;button onClick={SpeechRecognition.stopListening}\u003eStop\u0026#x3C;/button\u003e\n      \u0026#x3C;button onClick={resetTranscript}\u003eReset\u0026#x3C;/button\u003e\n      \u0026#x3C;p\u003e{transcript}\u0026#x3C;/p\u003e\n    \u0026#x3C;/div\u003e\n  );\n};\nexport default Dictaphone;\n\u003c/code\u003e\u003c/pre\u003e\n\u003cp\u003eYou can see more examples in the example React app attached to this repo. See \u003ca href=\"#developing\"\u003eDeveloping\u003c/a\u003e.\u003c/p\u003e\n\u003cp\u003e\u003ca name=\"why-you-should-use-a-polyfill-with-this-library\"\u003e\u003c/a\u003e\u003c/p\u003e\n\u003ch2\u003eWhy you should use a polyfill with this library\u003c/h2\u003e\n\u003cp\u003eBy default, speech recognition is not supported in all browsers, with the best native experience being available on desktop Chrome. To avoid the limitations of native browser speech recognition, it's recommended that you combine \u003ccode\u003ereact-speech-recognition\u003c/code\u003e with a \u003ca href=\"/polyfills\"\u003espeech recognition polyfill\u003c/a\u003e. Why? Here's a comparison with and without polyfills:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003e✅ With a polyfill, your web app will be voice-enabled on all modern browsers (except Internet Explorer)\u003c/li\u003e\n\u003cli\u003e❌ Without a polyfill, your web app will only be voice-enabled on the browsers listed \u003ca href=\"#supported-browsers\"\u003ehere\u003c/a\u003e\u003c/li\u003e\n\u003cli\u003e✅ With a polyfill, your web app will have a consistent voice experience across browsers\u003c/li\u003e\n\u003cli\u003e❌ Without a polyfill, different native implementations will produce different transcriptions, have different levels of accuracy, and have different formatting styles\u003c/li\u003e\n\u003cli\u003e✅ With a polyfill, you control who is processing your users' voice data\u003c/li\u003e\n\u003cli\u003e❌ Without a polyfill, your users' voice data will be sent to big tech companies like Google or Apple to be transcribed\u003c/li\u003e\n\u003cli\u003e✅ With a polyfill, \u003ccode\u003ereact-speech-recognition\u003c/code\u003e will be suitable for use in commercial applications\u003c/li\u003e\n\u003cli\u003e❌ Without a polyfill, \u003ccode\u003ereact-speech-recognition\u003c/code\u003e will still be fine for personal projects or use cases where cross-browser support is not needed\u003c/li\u003e\n\u003c/ul\u003e\n\u003cp\u003e\u003ccode\u003ereact-speech-recognition\u003c/code\u003e currently supports polyfills for the following cloud providers:\u003c/p\u003e\n\u003cdiv\u003e\n  \u003ca href=\"https://www.speechly.com/?utm_source=webspeechrecognition.com\"\u003e\n    \u003cimg src=\"images/speechly.png\" width=\"200\" alt=\"Speechly\"\u003e\n  \u003c/a\u003e\n  \u003cimg width=\"50\"\u003e\u003c/img\u003e\n  \u003ca href=\"https://azure.microsoft.com/en-gb/services/cognitive-services/speech-to-text/\"\u003e\n    \u003cimg src=\"images/microsoft.png\" width=\"175\" alt=\"Microsoft Azure Cognitive Services\"\u003e\n  \u003c/a\u003e\n\u003c/div\u003e\n\u003cp\u003e\u003ca name=\"cross-browser-example\"\u003e\u003c/a\u003e\u003c/p\u003e\n\u003ch2\u003eCross-browser example\u003c/h2\u003e\n\u003cp\u003eYou can find the full guide for setting up a polyfill \u003ca href=\"/polyfills\"\u003ehere\u003c/a\u003e. Alternatively, here is a quick (and free) example using Speechly:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eInstall \u003ccode\u003e@speechly/speech-recognition-polyfill\u003c/code\u003e in your web app\u003c/li\u003e\n\u003cli\u003eYou will need a Speechly app ID. To get one of these, sign up for free with Speechly and follow \u003ca href=\"https://docs.speechly.com/quick-start/stt-only/\"\u003ethe guide here\u003c/a\u003e\u003c/li\u003e\n\u003cli\u003eHere's a component for a push-to-talk button. The basic example above would also work fine.\u003c/li\u003e\n\u003c/ul\u003e\n\u003cpre\u003e\u003ccode\u003eimport React from 'react';\nimport { createSpeechlySpeechRecognition } from '@speechly/speech-recognition-polyfill';\nimport SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';\n\nconst appId = '\u0026#x3C;INSERT_SPEECHLY_APP_ID_HERE\u003e';\nconst SpeechlySpeechRecognition = createSpeechlySpeechRecognition(appId);\nSpeechRecognition.applyPolyfill(SpeechlySpeechRecognition);\n\nconst Dictaphone = () =\u003e {\n  const {\n    transcript,\n    listening,\n    browserSupportsSpeechRecognition\n  } = useSpeechRecognition();\n  const startListening = () =\u003e SpeechRecognition.startListening({ continuous: true });\n\n  if (!browserSupportsSpeechRecognition) {\n    return \u0026#x3C;span\u003eBrowser doesn't support speech recognition.\u0026#x3C;/span\u003e;\n  }\n\n  return (\n    \u0026#x3C;div\u003e\n      \u0026#x3C;p\u003eMicrophone: {listening ? 'on' : 'off'}\u0026#x3C;/p\u003e\n      \u0026#x3C;button\n        onTouchStart={startListening}\n        onMouseDown={startListening}\n        onTouchEnd={SpeechRecognition.stopListening}\n        onMouseUp={SpeechRecognition.stopListening}\n      \u003eHold to talk\u0026#x3C;/button\u003e\n      \u0026#x3C;p\u003e{transcript}\u0026#x3C;/p\u003e\n    \u0026#x3C;/div\u003e\n  );\n};\nexport default Dictaphone;\n\u003c/code\u003e\u003c/pre\u003e\n\u003ch2\u003eDetecting browser support for Web Speech API\u003c/h2\u003e\n\u003cp\u003eIf you choose not to use a polyfill, this library still fails gracefully on browsers that don't support speech recognition. It is recommended that you render some fallback content if it is not supported by the user's browser:\u003c/p\u003e\n\u003cpre\u003e\u003ccode\u003eif (!browserSupportsSpeechRecognition) {\n  // Render some fallback content\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003cp\u003e\u003ca name=\"supported-browsers\"\u003e\u003c/a\u003e\u003c/p\u003e\n\u003ch3\u003eSupported browsers\u003c/h3\u003e\n\u003cp\u003eWithout a polyfill, the Web Speech API is largely only supported by Google browsers. As of May 2021, the following browsers support the Web Speech API:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eChrome (desktop): this is by far the smoothest experience\u003c/li\u003e\n\u003cli\u003eSafari 14.1\u003c/li\u003e\n\u003cli\u003eMicrosoft Edge\u003c/li\u003e\n\u003cli\u003eChrome (Android): a word of warning about this platform, which is that there can be an annoying beeping sound when turning the microphone on. This is part of the Android OS and cannot be controlled from the browser\u003c/li\u003e\n\u003cli\u003eAndroid webview\u003c/li\u003e\n\u003cli\u003eSamsung Internet\u003c/li\u003e\n\u003c/ul\u003e\n\u003cp\u003eFor all other browsers, you can render fallback content using the \u003ccode\u003eSpeechRecognition.browserSupportsSpeechRecognition\u003c/code\u003e function described above. Alternatively, as mentioned before, you can integrate a \u003ca href=\"/polyfills\"\u003epolyfill\u003c/a\u003e.\u003c/p\u003e\n\u003ch2\u003eDetecting when the user denies access to the microphone\u003c/h2\u003e\n\u003cp\u003eEven if the browser supports the Web Speech API, the user still has to give permission for their microphone to be used before transcription can begin. They are asked for permission when \u003ccode\u003ereact-speech-recognition\u003c/code\u003e first tries to start listening. At this point, you can detect when the user denies access via the \u003ccode\u003eisMicrophoneAvailable\u003c/code\u003e state. When this becomes \u003ccode\u003efalse\u003c/code\u003e, it's advised that you disable voice-driven features and indicate that microphone access is needed for them to work.\u003c/p\u003e\n\u003cpre\u003e\u003ccode\u003eif (!isMicrophoneAvailable) {\n  // Render some fallback content\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003ch2\u003eControlling the microphone\u003c/h2\u003e\n\u003cp\u003eBefore consuming the transcript, you should be familiar with \u003ccode\u003eSpeechRecognition\u003c/code\u003e, which gives you control over the microphone. The state of the microphone is global, so any functions you call on this object will affect \u003cem\u003eall\u003c/em\u003e components using \u003ccode\u003euseSpeechRecognition\u003c/code\u003e.\u003c/p\u003e\n\u003ch3\u003eTurning the microphone on\u003c/h3\u003e\n\u003cp\u003eTo start listening to speech, call the \u003ccode\u003estartListening\u003c/code\u003e function.\u003c/p\u003e\n\u003cpre\u003e\u003ccode\u003eSpeechRecognition.startListening()\n\u003c/code\u003e\u003c/pre\u003e\n\u003cp\u003eThis is an asynchronous function, so it will need to be awaited if you want to do something after the microphone has been turned on.\u003c/p\u003e\n\u003ch3\u003eTurning the microphone off\u003c/h3\u003e\n\u003cp\u003eTo turn the microphone off, but still finish processing any speech in progress, call \u003ccode\u003estopListening\u003c/code\u003e.\u003c/p\u003e\n\u003cpre\u003e\u003ccode\u003eSpeechRecognition.stopListening()\n\u003c/code\u003e\u003c/pre\u003e\n\u003cp\u003eTo turn the microphone off, and cancel the processing of any speech in progress, call \u003ccode\u003eabortListening\u003c/code\u003e.\u003c/p\u003e\n\u003cpre\u003e\u003ccode\u003eSpeechRecognition.abortListening()\n\u003c/code\u003e\u003c/pre\u003e\n\u003ch2\u003eConsuming the microphone transcript\u003c/h2\u003e\n\u003cp\u003eTo make the microphone transcript available in your component, simply add:\u003c/p\u003e\n\u003cpre\u003e\u003ccode\u003econst { transcript } = useSpeechRecognition()\n\u003c/code\u003e\u003c/pre\u003e\n\u003ch2\u003eResetting the microphone transcript\u003c/h2\u003e\n\u003cp\u003eTo set the transcript to an empty string, you can call the \u003ccode\u003eresetTranscript\u003c/code\u003e function provided by \u003ccode\u003euseSpeechRecognition\u003c/code\u003e. Note that this is local to your component and does not affect any other components using Speech Recognition.\u003c/p\u003e\n\u003cpre\u003e\u003ccode\u003econst { resetTranscript } = useSpeechRecognition()\n\u003c/code\u003e\u003c/pre\u003e\n\u003cp\u003e\u003ca name=\"commands\"\u003e\u003c/a\u003e\u003c/p\u003e\n\u003ch2\u003eCommands\u003c/h2\u003e\n\u003cp\u003eTo respond when the user says a particular phrase, you can pass in a list of commands to the \u003ccode\u003euseSpeechRecognition\u003c/code\u003e hook. Each command is an object with the following properties:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003e\u003ccode\u003ecommand\u003c/code\u003e: This is a string or \u003ccode\u003eRegExp\u003c/code\u003e representing the phrase you want to listen for. If you want to use the same callback for multiple commands, you can also pass in an array here, with each value being a string or \u003ccode\u003eRegExp\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003e\u003ccode\u003ecallback\u003c/code\u003e: The function that is executed when the command is spoken. The last argument that this function receives will always be an object containing the following properties:\n\u003cul\u003e\n\u003cli\u003e\u003ccode\u003ecommand\u003c/code\u003e: The command phrase that was matched. This can be useful when you provide an array of command phrases for the same callback and need to know which one triggered it\u003c/li\u003e\n\u003cli\u003e\u003ccode\u003eresetTranscript\u003c/code\u003e: A function that sets the transcript to an empty string\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\u003ccode\u003ematchInterim\u003c/code\u003e: Boolean that determines whether \"interim\" results should be matched against the command. This will make your component respond faster to commands, but also makes false positives more likely - i.e. the command may be detected when it is not spoken. This is \u003ccode\u003efalse\u003c/code\u003e by default and should only be set for simple commands.\u003c/li\u003e\n\u003cli\u003e\u003ccode\u003eisFuzzyMatch\u003c/code\u003e: Boolean that determines whether the comparison between speech and \u003ccode\u003ecommand\u003c/code\u003e is based on similarity rather than an exact match. Fuzzy matching is useful for commands that are easy to mispronounce or be misinterpreted by the Speech Recognition engine (e.g. names of places, sports teams, restaurant menu items). It is intended for commands that are string literals without special characters. If \u003ccode\u003ecommand\u003c/code\u003e is a string with special characters or a \u003ccode\u003eRegExp\u003c/code\u003e, it will be converted to a string without special characters when fuzzy matching. The similarity that is needed to match the command can be configured with \u003ccode\u003efuzzyMatchingThreshold\u003c/code\u003e. \u003ccode\u003eisFuzzyMatch\u003c/code\u003e is \u003ccode\u003efalse\u003c/code\u003e by default. When it is set to \u003ccode\u003etrue\u003c/code\u003e, it will pass four arguments to \u003ccode\u003ecallback\u003c/code\u003e:\n\u003cul\u003e\n\u003cli\u003eThe value of \u003ccode\u003ecommand\u003c/code\u003e (with any special characters removed)\u003c/li\u003e\n\u003cli\u003eThe speech that matched \u003ccode\u003ecommand\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eThe similarity between \u003ccode\u003ecommand\u003c/code\u003e and the speech\u003c/li\u003e\n\u003cli\u003eThe object mentioned in the \u003ccode\u003ecallback\u003c/code\u003e description above\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\u003ccode\u003efuzzyMatchingThreshold\u003c/code\u003e: If the similarity of speech to \u003ccode\u003ecommand\u003c/code\u003e is higher than this value when \u003ccode\u003eisFuzzyMatch\u003c/code\u003e is turned on, the \u003ccode\u003ecallback\u003c/code\u003e will be invoked. You should set this only if \u003ccode\u003eisFuzzyMatch\u003c/code\u003e is \u003ccode\u003etrue\u003c/code\u003e. It takes values between \u003ccode\u003e0\u003c/code\u003e (will match anything) and \u003ccode\u003e1\u003c/code\u003e (needs an exact match). The default value is \u003ccode\u003e0.8\u003c/code\u003e.\u003c/li\u003e\n\u003cli\u003e\u003ccode\u003ebestMatchOnly\u003c/code\u003e: Boolean that, when \u003ccode\u003eisFuzzyMatch\u003c/code\u003e is \u003ccode\u003etrue\u003c/code\u003e, determines whether the callback should only be triggered by the command phrase that \u003cem\u003ebest\u003c/em\u003e matches the speech, rather than being triggered by all matching fuzzy command phrases. This is useful for fuzzy commands with multiple command phrases assigned to the same callback function - you may only want the callback to be triggered once for each spoken command. You should set this only if \u003ccode\u003eisFuzzyMatch\u003c/code\u003e is \u003ccode\u003etrue\u003c/code\u003e. The default value is \u003ccode\u003efalse\u003c/code\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch3\u003eCommand symbols\u003c/h3\u003e\n\u003cp\u003eTo make commands easier to write, the following symbols are supported:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eSplats: this is just a \u003ccode\u003e*\u003c/code\u003e and will match multi-word text:\n\u003cul\u003e\n\u003cli\u003eExample: \u003ccode\u003e'I would like to order *'\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eThe words that match the splat will be passed into the callback, one argument per splat\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003eNamed variables: this is written \u003ccode\u003e:\u0026#x3C;name\u003e\u003c/code\u003e and will match a single word:\n\u003cul\u003e\n\u003cli\u003eExample: \u003ccode\u003e'I am :height metres tall'\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eThe one word that matches the named variable will be passed into the callback\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003eOptional words: this is a phrase wrapped in parentheses \u003ccode\u003e(\u003c/code\u003e and \u003ccode\u003e)\u003c/code\u003e, and is not required to match the command:\n\u003cul\u003e\n\u003cli\u003eExample: \u003ccode\u003e'Pass the salt (please)'\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eThe above example would match both \u003ccode\u003e'Pass the salt'\u003c/code\u003e and \u003ccode\u003e'Pass the salt please'\u003c/code\u003e\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch3\u003eExample with commands\u003c/h3\u003e\n\u003cpre\u003e\u003ccode\u003eimport React, { useState } from 'react'\nimport SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition'\n\nconst Dictaphone = () =\u003e {\n  const [message, setMessage] = useState('')\n  const commands = [\n    {\n      command: 'I would like to order *',\n      callback: (food) =\u003e setMessage(`Your order is for: ${food}`)\n    },\n    {\n      command: 'The weather is :condition today',\n      callback: (condition) =\u003e setMessage(`Today, the weather is ${condition}`)\n    },\n    {\n      command: 'My top sports are * and *',\n      callback: (sport1, sport2) =\u003e setMessage(`#1: ${sport1}, #2: ${sport2}`)\n    },\n    {\n      command: 'Pass the salt (please)',\n      callback: () =\u003e setMessage('My pleasure')\n    },\n    {\n      command: ['Hello', 'Hi'],\n      callback: ({ command }) =\u003e setMessage(`Hi there! You said: \"${command}\"`),\n      matchInterim: true\n    },\n    {\n      command: 'Beijing',\n      callback: (command, spokenPhrase, similarityRatio) =\u003e setMessage(`${command} and ${spokenPhrase} are ${similarityRatio * 100}% similar`),\n      // If the spokenPhrase is \"Benji\", the message would be \"Beijing and Benji are 40% similar\"\n      isFuzzyMatch: true,\n      fuzzyMatchingThreshold: 0.2\n    },\n    {\n      command: ['eat', 'sleep', 'leave'],\n      callback: (command) =\u003e setMessage(`Best matching command: ${command}`),\n      isFuzzyMatch: true,\n      fuzzyMatchingThreshold: 0.2,\n      bestMatchOnly: true\n    },\n    {\n      command: 'clear',\n      callback: ({ resetTranscript }) =\u003e resetTranscript()\n    }\n  ]\n\n  const { transcript, browserSupportsSpeechRecognition } = useSpeechRecognition({ commands })\n\n  if (!browserSupportsSpeechRecognition) {\n    return null\n  }\n\n  return (\n    \u0026#x3C;div\u003e\n      \u0026#x3C;p\u003e{message}\u0026#x3C;/p\u003e\n      \u0026#x3C;p\u003e{transcript}\u0026#x3C;/p\u003e\n    \u0026#x3C;/div\u003e\n  )\n}\nexport default Dictaphone\n\u003c/code\u003e\u003c/pre\u003e\n\u003ch2\u003eContinuous listening\u003c/h2\u003e\n\u003cp\u003eBy default, the microphone will stop listening when the user stops speaking. This reflects the approach taken by \"press to talk\" buttons on modern devices.\u003c/p\u003e\n\u003cp\u003eIf you want to listen continuously, set the \u003ccode\u003econtinuous\u003c/code\u003e property to \u003ccode\u003etrue\u003c/code\u003e when calling \u003ccode\u003estartListening\u003c/code\u003e. The microphone will continue to listen, even after the user has stopped speaking.\u003c/p\u003e\n\u003cpre\u003e\u003ccode\u003eSpeechRecognition.startListening({ continuous: true })\n\u003c/code\u003e\u003c/pre\u003e\n\u003cp\u003eBe warned that not all browsers have good support for continuous listening. Chrome on Android in particular constantly restarts the microphone, leading to a frustrating and noisy (from the beeping) experience. To avoid enabling continuous listening on these browsers, you can make use of the \u003ccode\u003ebrowserSupportsContinuousListening\u003c/code\u003e state from \u003ccode\u003euseSpeechRecognition\u003c/code\u003e to detect support for this feature.\u003c/p\u003e\n\u003cpre\u003e\u003ccode\u003eif (browserSupportsContinuousListening) {\n  SpeechRecognition.startListening({ continuous: true })\n} else {\n  // Fallback behaviour\n}\n\u003c/code\u003e\u003c/pre\u003e\n\u003cp\u003eAlternatively, you can try one of the \u003ca href=\"/polyfills\"\u003epolyfills\u003c/a\u003e to enable continuous listening on these browsers.\u003c/p\u003e\n\u003ch2\u003eChanging language\u003c/h2\u003e\n\u003cp\u003eTo listen for a specific language, you can pass a language tag (e.g. \u003ccode\u003e'zh-CN'\u003c/code\u003e for Chinese) when calling \u003ccode\u003estartListening\u003c/code\u003e. See \u003ca href=\"/react-speech-recognition-api-docs#language\"\u003ehere\u003c/a\u003e for a list of supported languages.\u003c/p\u003e\n\u003cpre\u003e\u003ccode\u003eSpeechRecognition.startListening({ language: 'zh-CN' })\n\u003c/code\u003e\u003c/pre\u003e\n\u003cp\u003e\u003ca name=\"troubleshooting\"\u003e\u003c/a\u003e\u003c/p\u003e\n\u003ch2\u003eTroubleshooting\u003c/h2\u003e\n\u003ch3\u003e\u003ccode\u003eregeneratorRuntime is not defined\u003c/code\u003e\u003c/h3\u003e\n\u003cp\u003eIf you see the error \u003ccode\u003eregeneratorRuntime is not defined\u003c/code\u003e when using this library, you will need to ensure your web app installs \u003ccode\u003eregenerator-runtime\u003c/code\u003e:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003e\u003ccode\u003enpm i --save regenerator-runtime\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eIf you are using NextJS, put this at the top of your \u003ccode\u003e_app.js\u003c/code\u003e file: \u003ccode\u003eimport 'regenerator-runtime/runtime'\u003c/code\u003e. For any other framework, put it at the top of your \u003ccode\u003eindex.js\u003c/code\u003e file\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch3\u003eHow to use \u003ccode\u003ereact-speech-recognition\u003c/code\u003e offline?\u003c/h3\u003e\n\u003cp\u003eUnfortunately, speech recognition will not function in Chrome when offline. According to the \u003ca href=\"https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API/Using_the_Web_Speech_API\"\u003eWeb Speech API docs\u003c/a\u003e: \u003ccode\u003eOn Chrome, using Speech Recognition on a web page involves a server-based recognition engine. Your audio is sent to a web service for recognition processing, so it won't work offline.\u003c/code\u003e\u003c/p\u003e\n\u003cp\u003eIf you are building an offline web app, you can detect when the browser is offline by inspecting the value of \u003ccode\u003enavigator.onLine\u003c/code\u003e. If it is \u003ccode\u003etrue\u003c/code\u003e, you can render the transcript generated by React Speech Recognition. If it is \u003ccode\u003efalse\u003c/code\u003e, it's advisable to render offline fallback content that signifies that speech recognition is disabled. The online/offline API is simple to use - you can read how to use it \u003ca href=\"https://developer.mozilla.org/en-US/docs/Web/API/NavigatorOnLine/Online_and_offline_events\"\u003ehere\u003c/a\u003e.\u003c/p\u003e\n\u003cp\u003e\u003ca name=\"developing\"\u003e\u003c/a\u003e\u003c/p\u003e\n\u003ch2\u003eDeveloping\u003c/h2\u003e\n\u003cp\u003eYou can run an example React app that uses \u003ccode\u003ereact-speech-recognition\u003c/code\u003e with:\u003c/p\u003e\n\u003cpre\u003e\u003ccode\u003enpm i\nnpm run dev\n\u003c/code\u003e\u003c/pre\u003e\n\u003cp\u003eOn \u003ccode\u003ehttp://localhost:3000\u003c/code\u003e, you'll be able to speak into the microphone and see your speech as text on the web page. There are also controls for turning speech recognition on and off. You can make changes to the web app itself in the \u003ccode\u003eexample\u003c/code\u003e directory. Any changes you make to the web app or \u003ccode\u003ereact-speech-recognition\u003c/code\u003e itself will be live reloaded in the browser.\u003c/p\u003e\n\u003ch2\u003eAPI docs\u003c/h2\u003e\n\u003cp\u003eView the API docs \u003ca href=\"/react-speech-recognition-api-docs\"\u003ehere\u003c/a\u003e or follow the guide above to learn how to use \u003ccode\u003ereact-speech-recognition\u003c/code\u003e.\u003c/p\u003e\n"},"__N_SSG":true},"page":"/react-speech-recognition","query":{},"buildId":"s8hX2AK8N3co9J3qwh2ay","isFallback":false,"gsp":true,"scriptLoader":[]}</script></body></html>
