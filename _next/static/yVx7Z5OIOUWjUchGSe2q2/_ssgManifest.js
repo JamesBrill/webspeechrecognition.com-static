@@ -1,0 +1,1 @@
+self.__SSG_MANIFEST=new Set(["\u002F","\u002Freact-speech-recognition-demo","\u002Freact-speech-recognition-api-docs","\u002Fwhat-is-web-speech-recognition","\u002Freact-speech-recognition","\u002Fpolyfills"]);self.__SSG_MANIFEST_CB&&self.__SSG_MANIFEST_CB()
